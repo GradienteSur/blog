@@ -1,5 +1,3 @@
-import fs from 'fs/promises'
-import path from 'path'
 import { BlogPost } from '@/types'
 
 interface CacheEntry<T> {
@@ -16,31 +14,43 @@ interface CacheStats {
 
 class BlogCache {
   private memoryCache = new Map<string, CacheEntry<any>>()
-  private cacheDir: string
+  private dbName = 'blog-cache'
+  private dbVersion = 1
+  private storeName = 'cache-entries'
   private maxMemorySize = 100 // Max items in memory
-  private diskCacheTTL = 24 * 60 * 60 * 1000 // 24 hours
+  private persistentCacheTTL = 24 * 60 * 60 * 1000 // 24 hours
   private memoryCacheTTL = 10 * 60 * 1000 // 10 minutes
   private stats: CacheStats = { hits: 0, misses: 0, lastUpdate: 0 }
+  private dbPromise: Promise<IDBDatabase> | null = null
 
   constructor() {
-    this.cacheDir = path.join(process.cwd(), '.cache', 'blog')
-    this.ensureCacheDir()
+    if (typeof window !== 'undefined') {
+      this.initDB()
+    }
   }
 
-  private async ensureCacheDir() {
-    try {
-      await fs.mkdir(this.cacheDir, { recursive: true })
-    } catch (error) {
-      console.warn('Failed to create cache directory:', error)
-    }
+  private initDB(): Promise<IDBDatabase> {
+    if (this.dbPromise) return this.dbPromise
+
+    this.dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion)
+      
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+      
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName, { keyPath: 'key' })
+        }
+      }
+    })
+
+    return this.dbPromise
   }
 
   private getCacheKey(key: string): string {
     return key.replace(/[^a-zA-Z0-9-_]/g, '_')
-  }
-
-  private getFilePath(key: string): string {
-    return path.join(this.cacheDir, `${this.getCacheKey(key)}.json`)
   }
 
   // Memory cache operations
@@ -73,35 +83,75 @@ class BlogCache {
     return entry as CacheEntry<T>
   }
 
-  // Disk cache operations
-  private async setDiskCache<T>(key: string, data: T, etag?: string) {
+  // IndexedDB cache operations
+  private async setPersistentCache<T>(key: string, data: T, etag?: string) {
+    if (typeof window === 'undefined') return
+
     try {
-      const entry: CacheEntry<T> = {
+      const db = await this.initDB()
+      const transaction = db.transaction([this.storeName], 'readwrite')
+      const store = transaction.objectStore(this.storeName)
+      
+      const entry = {
+        key: this.getCacheKey(key),
         data,
         timestamp: Date.now(),
         etag
       }
-      await fs.writeFile(this.getFilePath(key), JSON.stringify(entry, null, 2))
+      
+      await new Promise((resolve, reject) => {
+        const request = store.put(entry)
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
     } catch (error) {
-      console.warn(`Failed to write disk cache for ${key}:`, error)
+      console.warn(`Failed to write persistent cache for ${key}:`, error)
     }
   }
 
-  private async getDiskCache<T>(key: string): Promise<CacheEntry<T> | null> {
-    try {
-      const filePath = this.getFilePath(key)
-      const content = await fs.readFile(filePath, 'utf-8')
-      const entry: CacheEntry<T> = JSON.parse(content)
+  private async getPersistentCache<T>(key: string): Promise<CacheEntry<T> | null> {
+    if (typeof window === 'undefined') return null
 
-      const isExpired = Date.now() - entry.timestamp > this.diskCacheTTL
+    try {
+      const db = await this.initDB()
+      const transaction = db.transaction([this.storeName], 'readonly')
+      const store = transaction.objectStore(this.storeName)
+      
+      const entry = await new Promise<any>((resolve, reject) => {
+        const request = store.get(this.getCacheKey(key))
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+
+      if (!entry) return null
+
+      const isExpired = Date.now() - entry.timestamp > this.persistentCacheTTL
       if (isExpired) {
-        await fs.unlink(filePath).catch(() => {}) // Clean up expired cache
+        await this.removePersistentCache(key)
         return null
       }
 
-      return entry
+      return { data: entry.data, timestamp: entry.timestamp, etag: entry.etag }
     } catch (error) {
-      return null // File doesn't exist or is corrupted
+      return null
+    }
+  }
+
+  private async removePersistentCache(key: string) {
+    if (typeof window === 'undefined') return
+
+    try {
+      const db = await this.initDB()
+      const transaction = db.transaction([this.storeName], 'readwrite')
+      const store = transaction.objectStore(this.storeName)
+      
+      await new Promise((resolve, reject) => {
+        const request = store.delete(this.getCacheKey(key))
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+    } catch (error) {
+      // Ignore errors when removing
     }
   }
 
@@ -114,13 +164,13 @@ class BlogCache {
       return { data: memoryEntry.data, etag: memoryEntry.etag }
     }
 
-    // Try disk cache
-    const diskEntry = await this.getDiskCache<T>(key)
-    if (diskEntry) {
+    // Try persistent cache
+    const persistentEntry = await this.getPersistentCache<T>(key)
+    if (persistentEntry) {
       // Promote to memory cache
-      this.setMemoryCache(key, diskEntry.data, diskEntry.etag)
+      this.setMemoryCache(key, persistentEntry.data, persistentEntry.etag)
       this.stats.hits++
-      return { data: diskEntry.data, etag: diskEntry.etag }
+      return { data: persistentEntry.data, etag: persistentEntry.etag }
     }
 
     this.stats.misses++
@@ -129,28 +179,32 @@ class BlogCache {
 
   async set<T>(key: string, data: T, etag?: string) {
     this.setMemoryCache(key, data, etag)
-    await this.setDiskCache(key, data, etag)
+    await this.setPersistentCache(key, data, etag)
     this.stats.lastUpdate = Date.now()
   }
 
   async invalidate(key: string) {
     this.memoryCache.delete(key)
-    try {
-      await fs.unlink(this.getFilePath(key))
-    } catch (error) {
-      // File might not exist, ignore
-    }
+    await this.removePersistentCache(key)
   }
 
   async clear() {
     this.memoryCache.clear()
+    
+    if (typeof window === 'undefined') return
+
     try {
-      const files = await fs.readdir(this.cacheDir)
-      await Promise.all(
-        files.map(file => fs.unlink(path.join(this.cacheDir, file)))
-      )
+      const db = await this.initDB()
+      const transaction = db.transaction([this.storeName], 'readwrite')
+      const store = transaction.objectStore(this.storeName)
+      
+      await new Promise((resolve, reject) => {
+        const request = store.clear()
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
     } catch (error) {
-      console.warn('Failed to clear disk cache:', error)
+      console.warn('Failed to clear persistent cache:', error)
     }
   }
 
