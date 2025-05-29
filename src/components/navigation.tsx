@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Github, BookOpen, PenTool, User, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { useAuth } from '@/components/auth-provider'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +25,6 @@ const navigation = [
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
-  const { user, signOut, signInWithGithub } = useAuth()
 
   const handleSignOut = async () => {
     try {
