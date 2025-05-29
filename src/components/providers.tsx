@@ -17,6 +17,7 @@ export const Providers = memo(function Providers({ children }: ProvidersProps) {
       enableSystem
       disableTransitionOnChange
     >
+    <BlogDataProvider>{children}</BlogDataProvider>
     </ThemeProvider>
   )
 })
