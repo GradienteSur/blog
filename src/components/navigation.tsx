@@ -26,14 +26,6 @@ export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  const handleSignOut = async () => {
-    try {
-      await signOut()
-    } catch (error) {
-      console.error('Error signing out:', error)
-    }
-  }
-
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -69,64 +61,6 @@ export function Navigation() {
             ))}
           </div>
 
-          {/* Right side controls */}
-          <div className="flex items-center space-x-4">
-            <ThemeToggle />
-            
-            {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email} />
-                      <AvatarFallback>
-                        {user.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <div className="flex items-center justify-start gap-2 p-2">
-                    <div className="flex flex-col space-y-1 leading-none">
-                      <p className="font-medium">{user.user_metadata?.name || user.email}</p>
-                      <p className="w-[200px] truncate text-sm text-muted-foreground">
-                        {user.email}
-                      </p>
-                    </div>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/profile" className="flex items-center">
-                      <User className="mr-2 h-4 w-4" />
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/write" className="flex items-center">
-                      <PenTool className="mr-2 h-4 w-4" />
-                      Write Article
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="flex items-center">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button onClick={signInWithGithub} variant="outline" size="sm">
-                <Github className="mr-2 h-4 w-4" />
-                Sign in
-              </Button>
-            )}
-
             {/* Mobile menu button */}
             <div className="md:hidden">
               <Button
@@ -142,7 +76,6 @@ export function Navigation() {
               </Button>
             </div>
           </div>
-        </div>
 
         {/* Mobile Navigation */}
         <AnimatePresence>
