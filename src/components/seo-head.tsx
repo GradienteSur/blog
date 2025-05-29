@@ -17,7 +17,7 @@ export function SEOHead({
   type = 'website',
   jsonLd
 }: SEOHeadProps) {
-  const fullTitle = title.includes('GradienteSur') ? title : `${title} | GradienteSur Blog`
+  const fullTitle = title.includes('surus') ? title : `${title} | surus blog`
   
   return (
     <Head>
@@ -34,7 +34,7 @@ export function SEOHead({
       <meta property="og:type" content={type} />
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:site_name" content="GradienteSur Blog" />
+      <meta property="og:site_name" content="surus blog" />
       <meta property="og:locale" content="es_AR" />
       {url && <meta property="og:url" content={url} />}
       {image && <meta property="og:image" content={image} />}
@@ -54,8 +54,8 @@ export function SEOHead({
       
       {/* Twitter Card Tags */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:site" content="@gradientesur" />
-      <meta name="twitter:creator" content="@gradientesur" />
+      <meta name="twitter:site" content="@surus" />
+      <meta name="twitter:creator" content="@surus" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       {image && <meta name="twitter:image" content={image} />}

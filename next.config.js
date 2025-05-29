@@ -19,7 +19,7 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
   env: {
-    SITE_URL: 'https://blog.gradientesur.com',
+    SITE_URL: 'https://blog.surus.dev',
   },
   
   webpack: (config, { isServer, dev }) => {

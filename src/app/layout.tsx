@@ -7,38 +7,38 @@ import { Footer } from '@/components/footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  metadataBase: new URL('https://blog.gradientesur.com'),
+  metadataBase: new URL('https://blog.surus.dev'),
   title: {
-    default: 'GradienteSur Blog - Inteligencia Artificial ',
-    template: '%s | GradienteSur Blog'
+    default: 'surus Blog - Inteligencia Artificial ',
+    template: '%s | surus Blog'
   },
   description: 'Blog especializado en inteligencia artificial, deep learning, data science y tecnologías emergentes en latinoamérica. Tutoriales prácticos y análisis técnicos.',
-  keywords: ['inteligencia artificial', 'machine learning', 'deep learning', 'data science', 'open source', 'gradientesur', 'blog', 'tutoriales'],
-  authors: [{ name: 'GradienteSur Team', url: 'https://gradientesur.com' }],
-  creator: 'GradienteSur',
-  publisher: 'GradienteSur',
+  keywords: ['inteligencia artificial', 'machine learning', 'deep learning', 'data science', 'open source', 'surus', 'blog', 'tutoriales'],
+  authors: [{ name: 'surus Team', url: 'https://surus.dev' }],
+  creator: 'surus',
+  publisher: 'surus',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
     locale: 'es_AR',
-    siteName: 'GradienteSur Blog',
-    title: 'GradienteSur Blog - Inteligencia Artificial',
+    siteName: 'surus Blog',
+    title: 'surus Blog - Inteligencia Artificial',
     description: 'Blog especializado en inteligencia artificial, deep learning, data science y tecnologías emergentes en latinoamérica. Tutoriales prácticos y análisis técnicos.',
-    url: 'https://blog.gradientesur.com',
+    url: 'https://blog.surus.dev',
     images: [
       {
         url: '/logo.png',
         width: 800,
         height: 600,
-        alt: 'GradienteSur Blog'
+        alt: 'surus Blog'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@gradientesur',
-    creator: '@gradientesur',
-    title: 'GradienteSur Blog - Inteligencia Artificial',
+    site: '@surus',
+    creator: '@surus',
+    title: 'surus Blog - Inteligencia Artificial',
     description: 'Blog especializado en inteligencia artificial, deep learning, data science y tecnologías emergentes en latinoamérica. Tutoriales prácticos y análisis técnicos.',
   },
   formatDetection: {
@@ -47,7 +47,7 @@ export const metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: 'https://blog.gradientesur.com'
+    canonical: 'https://blog.surus.dev'
   }
 }
 
@@ -59,7 +59,7 @@ export default function RootLayout({
   return (
     <html lang="es" suppressHydrationWarning>
       <head>
-        <link rel="canonical" href="https://blog.gradientesur.com" />
+        <link rel="canonical" href="https://blog.surus.dev" />
         <meta name="robots" content="index, follow, max-image-preview:large" />
         <meta name="googlebot" content="index, follow" />
         <link rel="icon" href="/logo.png" />

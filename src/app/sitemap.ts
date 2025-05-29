@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { fetchBlogPosts } from '@/lib/github'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = 'https://blog.gradientesur.com'
+  const baseUrl = 'https://blog.surus.dev'
   
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [

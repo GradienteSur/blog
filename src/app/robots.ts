@@ -17,8 +17,8 @@ export default function robots(): MetadataRoute.Robots {
         disallow: '/',
       },
     ],
-    sitemap: 'https://blog.gradientesur.com/sitemap.xml',
-    host: 'https://blog.gradientesur.com',
+    sitemap: 'https://blog.surus.dev/sitemap.xml',
+    host: 'https://blog.surus.dev',
   }
 }
 

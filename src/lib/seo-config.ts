@@ -1,7 +1,7 @@
 export const seoConfig = {
-  baseUrl: 'https://blog.gradientesur.com',
-  siteName: 'GradienteSur Blog',
-  defaultTitle: 'GradienteSur Blog - Inteligencia Artificial y Desarrollo Web',
+  baseUrl: 'https://blog.surus.dev',
+  siteName: 'surus blog',
+  defaultTitle: 'surus blog - Inteligencia Artificial y Desarrollo Web',
   defaultDescription: 'Blog especializado en inteligencia artificial, deep learning, data science y tecnologías emergentes en latinoamérica. Tutoriales prácticos y análisis técnicos.',
   defaultKeywords: [
     'inteligencia artificial',
@@ -17,15 +17,15 @@ export const seoConfig = {
     'next.js',
     'react',
     'tecnología',
-    'gradientesur'
+    'surus'
   ],
   author: {
-    name: 'GradienteSur Team',
-    url: 'https://gradientesur.com'
+    name: 'surus Team',
+    url: 'https://surus.dev'
   },
   social: {
-    twitter: '@gradientesur',
-    github: 'https://github.com/gradientesur'
+    twitter: '@surus',
+    github: 'https://github.com/surus'
   },
   verification: {
     // Add these when available

@@ -13,12 +13,12 @@ export function Footer() {
             <div className="flex items-center space-x-2">
               <Image
                 src="/logo.png"
-                alt="GradienteSur"
+                alt="surus"
                 width={32}
                 height={32}
                 className="h-8 w-8"
               />
-              <span className="text-xl font-bold">GradienteSur</span>
+              <span className="text-xl font-bold">surus</span>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
               Infraestructura e IA para la educación y la investigación en Latinoamérica.
@@ -47,25 +47,25 @@ export function Footer() {
             <h3 className="text-sm font-semibold">Conectar</h3>
             <div className="flex space-x-2">
               <Button variant="ghost" size="sm" asChild>
-                <a href="https://github.com/gradientesur" target="_blank" rel="noopener noreferrer">
+                <a href="https://github.com/surus" target="_blank" rel="noopener noreferrer">
                   <Github className="h-4 w-4" />
                   <span className="sr-only">GitHub</span>
                 </a>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <a href="https://twitter.com/gradientesur" target="_blank" rel="noopener noreferrer">
+                <a href="https://twitter.com/surus" target="_blank" rel="noopener noreferrer">
                   <Twitter className="h-4 w-4" />
                   <span className="sr-only">Twitter</span>
                 </a>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <a href="https://linkedin.com/company/gradientesur" target="_blank" rel="noopener noreferrer">
+                <a href="https://linkedin.com/company/surus" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="h-4 w-4" />
                   <span className="sr-only">LinkedIn</span>
                 </a>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <a href="mailto:contact@gradientesur.com">
+                <a href="mailto:contact@surus.dev">
                   <Mail className="h-4 w-4" />
                   <span className="sr-only">Email</span>
                 </a>
@@ -77,7 +77,7 @@ export function Footer() {
         <div className="mt-8 pt-8 border-t">
           <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <p className="text-xs text-muted-foreground">
-              © 2025 GradienteSur. Todos los derechos reservados.
+              © 2025 surus. Todos los derechos reservados.
             </p>
             <div className="flex space-x-4">
               <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">

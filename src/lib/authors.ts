@@ -3,11 +3,11 @@ export const AUTHORS = {
   'marian': {
     name: 'Marian Basti',
     avatar: 'https://avatars.githubusercontent.com/u/31198560',
-    bio: 'CTO de GradienteSur'
+    bio: 'CTO de surus'
   },
-  'gradientesur': {
-    name: 'GradienteSur Team',
-    avatar: 'https://github.com/gradientesur.png',
+  'surus': {
+    name: 'surus Team',
+    avatar: 'https://github.com/surus.png',
     bio: 'Tech enthusiasts'
   }
 } as const
@@ -23,7 +23,7 @@ export function getAuthor(authorInput: string | { name: string; avatar: string; 
     // If not found in predefined authors, treat as a name
     return {
       name: authorInput,
-      avatar: 'https://github.com/gradientesur.png',
+      avatar: 'https://github.com/surus.png',
       bio: 'Contributor'
     }
   }

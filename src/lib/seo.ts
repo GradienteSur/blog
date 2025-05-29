@@ -13,7 +13,7 @@ export interface SEOData {
   type?: 'website' | 'article'
 }
 
-export function generateArticleSEO(post: BlogPost, baseUrl: string = 'https://blog.gradientesur.com'): SEOData {
+export function generateArticleSEO(post: BlogPost, baseUrl: string = 'https://blog.surus.dev'): SEOData {
   const url = post.metadata?.canonical ?? `${baseUrl}/articles/${post.slug}`
   const description = post.metadata?.description ?? post.excerpt?.replace(/[<>]/g, '').trim() ?? ''
   const cleanDescription = description.length > 160 ? description.substring(0, 157) + '...' : description
@@ -33,7 +33,7 @@ export function generateArticleSEO(post: BlogPost, baseUrl: string = 'https://bl
   }
 }
 
-export function generateArticleJsonLd(post: BlogPost, baseUrl: string = 'https://blog.gradientesur.com') {
+export function generateArticleJsonLd(post: BlogPost, baseUrl: string = 'https://blog.surus.dev') {
   const url = `${baseUrl}/articles/${post.slug}`
   
   return {
@@ -53,7 +53,7 @@ export function generateArticleJsonLd(post: BlogPost, baseUrl: string = 'https:/
     },
     publisher: {
       '@type': 'Organization',
-      name: 'GradienteSur',
+      name: 'surus',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.png`
@@ -69,13 +69,13 @@ export function generateArticleJsonLd(post: BlogPost, baseUrl: string = 'https:/
     inLanguage: 'es-AR',
     isPartOf: {
       '@type': 'Website',
-      name: 'GradienteSur Blog',
+      name: 'surus blog',
       url: baseUrl
     }
   }
 }
 
-export function generateBreadcrumbJsonLd(items: Array<{ name: string; url: string }>, baseUrl: string = 'https://blog.gradientesur.com') {
+export function generateBreadcrumbJsonLd(items: Array<{ name: string; url: string }>, baseUrl: string = 'https://blog.surus.dev') {
   return {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -88,18 +88,18 @@ export function generateBreadcrumbJsonLd(items: Array<{ name: string; url: strin
   }
 }
 
-export function generateWebsiteJsonLd(baseUrl: string = 'https://blog.gradientesur.com') {
+export function generateWebsiteJsonLd(baseUrl: string = 'https://blog.surus.dev') {
   return {
     '@context': 'https://schema.org',
     '@type': 'Website',
-    name: 'GradienteSur Blog',
+    name: 'surus blog',
     description: 'Blog especializado en inteligencia artificial, machine learning en el navegador y desarrollo web moderno.',
     url: baseUrl,
     inLanguage: 'es-AR',
     publisher: {
       '@type': 'Organization',
-      name: 'GradienteSur',
-      url: 'https://gradientesur.com',
+      name: 'surus',
+      url: 'https://surus.dev',
       logo: {
         '@type': 'ImageObject',
         url: `${baseUrl}/logo.png`

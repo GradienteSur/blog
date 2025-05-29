@@ -34,13 +34,13 @@ export function Navigation() {
           <Link href="/" className="flex items-center space-x-2">
             <Image
               src="/logo.png"
-              alt="GradienteSur"
+              alt="surus"
               width={32}
               height={32}
               className="h-8 w-8"
             />
             <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              GradienteSur
+              surus
             </span>
           </Link>
 

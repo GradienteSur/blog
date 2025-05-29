@@ -1,6 +1,6 @@
 # Cloudflare Pages Deployment Guide
 
-This guide will help you deploy the GradienteSur blog to Cloudflare Pages.
+This guide will help you deploy the surus blog to Cloudflare Pages.
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ In your Cloudflare Pages project settings, add these environment variables:
 ```bash
 # Required
 GITHUB_TOKEN=your-github-personal-access-token
-GITHUB_REPO_OWNER=gradientesur
+GITHUB_REPO_OWNER=surus
 GITHUB_REPO_NAME=blog-articles
 
 # Optional (for optimization)
@@ -49,14 +49,14 @@ NEXT_TELEMETRY_DISABLED=1
 
 1. In your Cloudflare Pages project, go to **Custom domains**
 2. Click **"Set up a custom domain"**
-3. Enter: `blog.gradientesur.com`
+3. Enter: `blog.surus.dev`
 4. Follow the DNS configuration steps
 
 ### 5. Deploy
 
 1. Click **"Save and Deploy"**
 2. Your site will be available at: `https://your-project-name.pages.dev`
-3. Once custom domain is configured: `https://blog.gradientesur.com`
+3. Once custom domain is configured: `https://blog.surus.dev`
 
 ## Build Process
 
@@ -101,4 +101,4 @@ After successful deployment:
 4. Test theme toggle functionality
 5. Confirm GitHub content fetching works
 
-Your blog is now live at https://blog.gradientesur.com! 🎉
+Your blog is now live at https://blog.surus.dev! 🎉
