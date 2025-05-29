@@ -1,0 +1,40 @@
+---
+# ========================================
+# VERSIÓN MÍNIMA - Solo 4 campos necesarios
+# ========================================
+title: 'template'
+tags: ['tag1', 'tag2', 'tag3']
+featured: false
+emoji: '🤖'
+
+# =================
+# CAMPOS OPCIONALES
+# =================
+# author: 'marian' # O usar 'gradientesur' para el equipo
+# excerpt: 'Descripción personalizada del artículo...'
+# slug: 'url-personalizada'
+# readTime: 8
+# publishedAt: '2025-05-25T10:00:00Z'
+# updatedAt: '2025-05-25T12:00:00Z'
+# coverImage: '/custom-image.jpg'
+# canonical: 'https://otro-dominio.com/articulo'
+---
+
+Una pequeña intro y narrativa que cuenta de que vamos a hablar y mostrar en el artículo, si va a ser un tutorial, una opinión, un debate, una noticia.
+Todo el contenido va a ser renderizado en markdown
+
+## Sección primera
+
+Contenido de la primera sección
+
+## Etc
+### Etc
+- Etc
+- Etc
+
+## Bibliografía
+
+- [Es muy importante]()
+- [Linkear a otras]()
+- [Páginas y recursos que justifiquen nuestro escrito]()
+

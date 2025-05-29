@@ -1,0 +1,16 @@
+# Cloudflare Pages deployment configuration
+# This file helps Cloudflare understand how to build and deploy your Next.js app
+
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Build output directory  
+  publish = "out"
+
+[build.environment]
+  # Node.js version
+  NODE_VERSION = "18"
+  
+  # Next.js specific optimizations
+  NEXT_TELEMETRY_DISABLED = "1"

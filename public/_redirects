@@ -1,0 +1,6 @@
+# Cloudflare Pages redirects and rules
+# Redirect any API calls to 404 since we're using static export
+/api/* /404.html 404
+
+# Optional: Redirect old paths if needed
+# /old-path/* /new-path/:splat 301
