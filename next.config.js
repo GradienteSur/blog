@@ -71,15 +71,6 @@ const nextConfig = {
               minChunks: 1,
               reuseExistingChunk: true,
             },
-            // Transformers.js - lazy loaded and optimized
-            transformers: {
-              test: /[\\/]node_modules[\\/]@xenova[\\/]transformers/,
-              name: 'transformers',
-              chunks: 'async', // Only load when needed
-              priority: 50,
-              enforce: true,
-              maxAsyncRequests: 1, // Limit concurrent loading
-            },
             // UI Components
             ui: {
               test: /[\\/]node_modules[\\/](@radix-ui|framer-motion|lucide-react)[\\/]/,

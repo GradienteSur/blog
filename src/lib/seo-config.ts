@@ -12,7 +12,7 @@ export const seoConfig = {
     'open source',
     'blog',
     'tutoriales',
-    'transformers.js',
+    'transformers',
     'hugging face',
     'next.js',
     'react',

@@ -19,7 +19,7 @@ export default function ArticlesList({ posts }) {
   const seoData = {
     title: 'Artículos sobre IA y Desarrollo Web',
     description: 'Aprende sobre inteligencia artificial, deep learning, data science y tecnologías emergentes en latinoamérica. Tutoriales prácticos y análisis técnicos.',
-    keywords: ['artículos IA', 'tutoriales machine learning', 'desarrollo web', 'inteligencia artificial', 'transformers.js', 'hugging face', 'open source', 'deep learning', 'data science', 'IA en español'],
+    keywords: ['artículos IA', 'tutoriales machine learning', 'desarrollo web', 'inteligencia artificial', 'transformers', 'hugging face', 'open source', 'deep learning', 'data science', 'IA en español'],
     url: 'https://blog.gradientesur.com/articles',
     type: 'website'
   };

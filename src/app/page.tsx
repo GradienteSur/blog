@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'GradienteSur Blog - Inteligencia Artificial',
   description: 'Descubre los últimos avances en inteligencia artificial, machine learning y deep learning. Tutoriales prácticos, análisis técnico y tendencias tecnológicas.',
-  keywords: ['inteligencia artificial', 'machine learning', 'AI en navegador', 'desarrollo web moderno', 'transformers.js', 'hugging face', 'next.js', 'react'],
+  keywords: ['inteligencia artificial', 'machine learning', 'AI en navegador', 'desarrollo web moderno', 'transformers', 'hugging face', 'next.js', 'react'],
   openGraph: {
     title: 'GradienteSur Blog - Inteligencia Artificial',
     description: 'Descubre los últimos avances en inteligencia artificial, machine learning y deep learning.',

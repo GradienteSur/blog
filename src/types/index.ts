@@ -52,20 +52,3 @@ export interface User {
   role: 'admin' | 'writer' | 'reader';
   createdAt: string;
 }
-
-export interface TransformersResult {
-  model: string;
-  input: string;
-  output: any;
-  executionTime: number;
-  timestamp: string;
-}
-
-export interface CodeSnippet {
-  id: string;
-  language: string;
-  code: string;
-  description?: string;
-  transformersModel?: string;
-  isRunnable: boolean;
-}
