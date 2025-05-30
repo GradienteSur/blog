@@ -6,7 +6,6 @@ import { markdownToHtml } from '@/lib/markdown';
 import { generateArticleSEO, generateArticleJsonLd, generateBreadcrumbJsonLd } from '@/lib/seo';
 import { SEOHead } from '@/components/seo-head';
 import { generateExcerpt, generateSlug, calculateReadTime } from '@/lib/content-utils';
-import { getAuthor } from '@/lib/authors';
 
 import { ArticleContent } from '@/components/article-content';
 import { ArticleHeader } from '@/components/article-header';
@@ -124,10 +123,45 @@ export async function getStaticProps({ params }) {
   if (fs.existsSync(filePath)) {
     const fileContents = fs.readFileSync(filePath, 'utf8');
     const { data, content } = matter(fileContents);
-    const processedContent = await markdownToHtml(content, params.slug); // Add cache key
     
-    // Use getAuthor to handle both string and object author formats
-    const authorObj = getAuthor(data.author || 'marian');
+    // Validate mandatory author field
+    if (!data.author) {
+      console.error(`Missing mandatory 'author' field in frontmatter for file: ${params.slug}.md`);
+      return {
+        notFound: true,
+      };
+    }
+    
+    const processedContent = await markdownToHtml(content, params.slug);
+    
+    // Process author information directly from frontmatter
+    let authorObj
+    if (typeof data.author === 'string') {
+      // Legacy format: just a name
+      authorObj = {
+        name: data.author,
+        avatar: data.authorAvatar || 'https://github.com/surus.png',
+        bio: data.authorBio || 'Contributor'
+      }
+    } else if (typeof data.author === 'object') {
+      // New format: object with name, avatar, bio
+      if (!data.author.name) {
+        console.error(`Author object must have 'name' field in file: ${params.slug}.md`);
+        return {
+          notFound: true,
+        };
+      }
+      authorObj = {
+        name: data.author.name,
+        avatar: data.author.avatar || 'https://github.com/surus.png',
+        bio: data.author.bio || 'Contributor'
+      }
+    } else {
+      console.error(`Author field must be a string or object in file: ${params.slug}.md`);
+      return {
+        notFound: true,
+      };
+    }
     
     post = {
       title: data.title || params.slug,
@@ -137,7 +171,7 @@ export async function getStaticProps({ params }) {
       publishedAt: data.publishedAt || data.date || new Date().toISOString(),
       updatedAt: data.updatedAt || null,
       tags: data.tags || [],
-      slug: params.slug, // Use filename-based slug as authoritative source
+      slug: params.slug,
       emoji: data.emoji || '📝',
       coverImage: data.coverImage || '',
       readTime: data.readTime || calculateReadTime(content),

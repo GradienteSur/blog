@@ -1,9 +1,13 @@
 ---
 title: 'Fine-tuning ModernBERT para Q&A Legal Argentino'
+author:
+  name: 'Marian Basti'
+  avatar: 'https://avatars.githubusercontent.com/u/31198560'
+  bio: 'CTO de surus'
 tags: ['modernbert', 'fine-tuning', 'legal-ai', 'argentina', 'embeddings', 'Q&A']
 featured: true
 emoji: '⚖️'
-# Todo lo demás se genera automáticamente: author='marian', excerpt, slug, readTime, publishedAt, metadata
+# Todo lo demás se genera automáticamente: excerpt, slug, readTime, publishedAt, metadata
 ---
 
 Trabajar con documentos legales presenta una barrera linguística característica: terminología especializada, estructura formal y la necesidad de precisión absoluta. En este tutorial, vamos a explorar cómo entrenar **ModernBERT-large** usando el dataset `marianbasti/boletin-oficial-argentina-questions` para crear un sistema de Q&A especializado en documentos legales argentinos.

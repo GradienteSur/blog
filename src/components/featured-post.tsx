@@ -89,7 +89,7 @@ function FeaturedPostComponent({ post: externalPost }: FeaturedPostProps) {
 
         <h2 className="text-2xl font-bold text-gray-900 mb-3 leading-tight">
           <Link
-            href={`/blog/${post.slug}`}
+            href={`/articles/${post.slug}`}
             className="hover:text-blue-600 transition-colors"
           >
             {post.title}
@@ -127,10 +127,10 @@ function FeaturedPostComponent({ post: externalPost }: FeaturedPostProps) {
             </div>
             
             <Link
-              href={`/blog/${post.slug}`}
+              href={`/articles/${post.slug}`}
               className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 transition-colors text-sm font-medium"
             >
-              Read more
+              Leer más
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

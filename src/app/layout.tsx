@@ -67,7 +67,6 @@ export default function RootLayout({
         {/* Preload critical resources */}
         <link rel="preload" href="/logo.png" as="image" />
         <link rel="dns-prefetch" href="//github.com" />
-        <link rel="dns-prefetch" href="//avatars.githubusercontent.com" />
         <link rel="dns-prefetch" href="//api.github.com" />
         {/* Verification meta tags (add when available) */}
         {/* <meta name="google-site-verification" content="your-verification-code" /> */}

@@ -87,7 +87,7 @@ function FeaturedPostComponent({ posts: externalPosts }: FeaturedPostProps) {
           </Badge>
         </div>
 
-        <Link href={`/blog/${post.slug}`} className="block">
+        <Link href={`/articles/${post.slug}`} className="block">
           <motion.div
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.2 }}

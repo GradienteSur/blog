@@ -1,6 +1,5 @@
 import matter from 'gray-matter'
 import { generateExcerpt, generateSlug, calculateReadTime } from './content-utils'
-import { getAuthor } from './authors'
 import type { BlogPost } from '@/types'
 import { blogCache } from './cache'
 
@@ -30,7 +29,7 @@ class GitHubAPIClient {
   private async makeRequest(url: string, etag?: string): Promise<GitHubAPIResponse> {
     const headers: Record<string, string> = {
       'Accept': 'application/vnd.github.v3+json',
-      'User-Agent': 'GradienteSur-Blog/1.0'
+      'User-Agent': 'surus-blog/1.0'
     }
 
     if (this.authToken) {
@@ -195,8 +194,35 @@ class GitHubAPIClient {
             const content = await this.fetchFileContent(file)
             const { data: frontmatter, content: markdownContent } = matter(content)
             
+            // Validate mandatory author field
+            if (!frontmatter.author) {
+              throw new Error(`Missing mandatory 'author' field in frontmatter for file: ${file.name}`)
+            }
+
+            // Process author information directly from frontmatter
+            let author
+            if (typeof frontmatter.author === 'string') {
+              // Legacy format: just a name
+              author = {
+                name: frontmatter.author,
+                avatar: frontmatter.authorAvatar || 'https://github.com/surus.png',
+                bio: frontmatter.authorBio || 'Contributor'
+              }
+            } else if (typeof frontmatter.author === 'object') {
+              // New format: object with name, avatar, bio
+              if (!frontmatter.author.name) {
+                throw new Error(`Author object must have 'name' field in file: ${file.name}`)
+              }
+              author = {
+                name: frontmatter.author.name,
+                avatar: frontmatter.author.avatar || 'https://github.com/surus.png',
+                bio: frontmatter.author.bio || 'Contributor'
+              }
+            } else {
+              throw new Error(`Author field must be a string or object in file: ${file.name}`)
+            }
+            
             const slug = generateSlug(frontmatter.title || file.name.replace('.md', ''))
-            const author = getAuthor(frontmatter.author || 'marian')
             
             return {
               id: file.sha,

@@ -1,6 +1,6 @@
-# Blog de GradienteSur
+# Blog de surus
 
-Este es el blog oficial de GradienteSur, donde compartiremos artículos y tutoriales sobre inteligencia artificial, infraestructura, hardware y cualquier otro tipo de tecnología que nos mueve.
+Este es el blog oficial de surus, donde compartiremos artículos y tutoriales sobre inteligencia artificial, infraestructura, hardware y cualquier otro tipo de tecnología que nos mueve.
 
 ## 🛠️ Inicio Rápido
 
@@ -18,24 +18,17 @@ cd blog
 npm i
 ```
 
-2. **Configuración del Entorno**
-```bash
-cp .env.example .env.local
-# Editá .env.local con tus credenciales
-```
-
-3. **Ejecutar Servidor de Desarrollo**
+2. **Ejecutar Servidor de Desarrollo**
 ```bash
 npm run dev
 ```
 
-¡Visitá `http://localhost:3000` para ver tu blog!
+Visitá `http://localhost:3000` para ver tu blog!
 
 ### Integración con GitHub
 1. Creá una aplicación GitHub OAuth
 2. Configurá un repositorio para los artículos
 3. Configurá un webhook para actualizaciones automáticas
-4. Agregá el token de GitHub al entorno
 
 ## 🔍 Optimización SEO
 
@@ -67,10 +60,10 @@ Licencia MIT - consultá el archivo LICENSE para más detalles.
 - **Documentación** - Revisá la carpeta `/docs`
 - **Issues** - GitHub issues para reportar bugs
 - **Discusiones** - GitHub discussions para preguntas
-- **Email** - contacto@gradientesur.com
+- **Email** - contacto@surus.com
 
 ---
 
-Construido con ❤️ por el equipo de GradienteSur
+Construido con ❤️ por el equipo de surus
 
 *Infraestructura e IA para la educación y la investigación en Latinoamérica.*

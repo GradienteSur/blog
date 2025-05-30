@@ -220,7 +220,7 @@ export function LatestPostsContext() {
 
 						<h3 className="font-semibold text-gray-900 mb-2">
 							<Link
-								href={`/blog/${post.slug}`}
+								href={`/articles/${post.slug}`}
 								className="hover:text-blue-600 transition-colors"
 							>
 								{post.title}

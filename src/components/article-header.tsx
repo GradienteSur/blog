@@ -52,24 +52,25 @@ export const ArticleHeader = memo(({ post }: ArticleHeaderProps) => {
 
             {/* Meta Info */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-muted-foreground">
-              {author?.name && (
-                <div className="flex items-center gap-3">
-                  {author.avatar && (
-                    <img 
-                      src={author.avatar} 
-                      alt={author.name}
-                      className="w-8 h-8 rounded-full"
-                      loading="lazy"
-                    />
-                  )}
-                  <div>
-                    <div className="font-medium text-foreground">By {author.name}</div>
-                    {author.bio && (
-                      <div className="text-xs">{author.bio}</div>
-                    )}
+              {/* Author section - now mandatory */}
+              <div className="flex items-center gap-3">
+                {author?.avatar && (
+                  <img 
+                    src={author.avatar} 
+                    alt={author.name || 'Author'}
+                    className="w-8 h-8 rounded-full"
+                    loading="lazy"
+                  />
+                )}
+                <div>
+                  <div className="font-medium text-foreground">
+                    By {author?.name || 'Unknown Author'}
                   </div>
+                  {author?.bio && (
+                    <div className="text-xs">{author.bio}</div>
+                  )}
                 </div>
-              )}
+              </div>
               {publishedAt && (
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
