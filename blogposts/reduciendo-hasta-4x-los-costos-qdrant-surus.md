@@ -51,7 +51,9 @@ source venv/bin/activate  # En Linux/Mac
 pip install qdrant-client datasets requests tqdm python-dotenv
 ```
 ## Cargando el Dataset y Configurando Clientes
-El dataset del Boletín Oficial lo descargaremos de HuggingFace, con ID `marianbasti/boletin-oficial-argentina`. En este paso también configuraremos nuestros clientes para Qdrant y la API de embeddings de surus.
+El dataset del Boletín Oficial lo descargaremos de [`marianbasti/boletin-oficial-argentina`](https://huggingface.co/datasets/marianbasti/boletin-oficial-argentina). En ese repositorio almacenamos el resultado de un script que raliza crawlings diarios de la web oficial, con el objetivo de tenerlo en un formato accesible y procesable.
+
+En este paso también configuraremos nuestros clientes para Qdrant y la API de embeddings de surus.
 
 ```python
 import os
@@ -81,34 +83,126 @@ print(dataset)
 
 Vamos a usar el modelo `nomic-ai/nomic-embed-text-v2-moe` de nomic-ai. Este es un modelo Matryoshka que permite generar embeddings de texto con una dimensión variable.
 
- Al momento de crear los embeddings, podremos especificar la dimensión que deseamos, lo que nos permitirá optimizar costos al almacenar solo los vectores necesarios.
+Al momento de crear los embeddings, podremos especificar la dimensión que deseamos y optimizar entre tamaño de almacenamiento y precisión.
 
-## Función para Generar Embeddings
-Acá definimos una función auxiliar para obtener los embeddings de un lote de textos usando la API de surus.
+Este modelo tiene un límite de largo de input de 512 tokens. por lo que:
+1. Vamos a usar el endpoint `/tokenize` de surus para obtener los tokens
+2. Agarraremos cada entrada de texto, y la chunkeremos en partes de 512 tokens.
+
+## Función para Tokenizar y Chunkear Texto
+
+El modelo de nomic tiene una ventana de contexto máxima de 512 tokens. 
+
+Para manejar esto, empezamos por definir funciones auxiliares para agarrar el texto y tokenizarlo usando la API de surus.
 
 ```python
+def tokenize_text(text, model=EMBEDDING_MODEL):
+    """
+    Tokeniza un texto usando la API de surus.
+    """
+    tokenize_url = "https://api.surus.dev/functions/v1/tokenize"
+    data = {
+        "model": model,
+        "input": text
+    }
+    headers_tokenize = headers.copy()
+    headers_tokenize["Content-Type"] = "application/json"
+    
+    response = requests.post(tokenize_url, headers=headers_tokenize, json=data)
+    response.raise_for_status()
+    
+    return response.json()['tokens']
+
+def chunk_text_by_tokens(text, max_tokens=512, model=EMBEDDING_MODEL):
+    """
+    Divide un texto en chunks de máximo max_tokens tokens.
+    """
+    if not text or not text.strip():
+        return []
+    
+    # Tokenizar el texto completo
+    tokens = tokenize_text(text, model)
+    
+    # Si el texto ya es menor o igual al límite, devolver como un solo chunk
+    if len(tokens) <= max_tokens:
+        return [text]
+    
+    # Dividir en chunks
+    chunks = []
+    for i in range(0, len(tokens), max_tokens):
+        chunk_tokens = tokens[i:i + max_tokens]
+        # Reconstruir el texto desde los tokens
+        # Nota: esto es una aproximación simple, en un caso real podrías
+        # necesitar usar el detokenizer específico del modelo
+        chunk_text = ' '.join(chunk_tokens)
+        chunks.append(chunk_text)
+    
+    return chunks
+
+# Prueba de la función de chunking
+try:
+    sample_text = "Este es un texto de prueba muy largo " * 100  # Texto repetitivo para testing
+    chunks = chunk_text_by_tokens(sample_text, max_tokens=50)  # Usar 50 tokens para la prueba
+    print(f"Texto dividido en {len(chunks)} chunks")
+    print(f"Primer chunk: {chunks[0][:100]}...")
+    if len(chunks) > 1:
+        print(f"Segundo chunk: {chunks[1][:100]}...")
+except Exception as e:
+    print(f"Error en prueba de chunking: {e}")
+```
+
+## Función para Generar Embeddings
+Acá actualizamos la función para manejar texto chunkeado y generar embeddings para cada chunk.
+
+```python
+def get_embeddings_for_chunks(text, model=EMBEDDING_MODEL, dimension_size=768, max_tokens=512):
+    """
+    Obtiene embeddings para un texto, dividiéndolo en chunks si es necesario.
+    Retorna una lista de embeddings, uno por cada chunk.
+    """
+    chunks = chunk_text_by_tokens(text, max_tokens=max_tokens, model=model)
+    
+    if not chunks:
+        return []
+    
+    # Generar embeddings para todos los chunks de una vez
+    data = {
+        "model": model,
+        "input": chunks,
+        "dimensions": dimension_size
+    }
+    headers_embed = headers.copy()
+    headers_embed["Content-Type"] = "application/json"
+    response = requests.post(API_URL, headers=headers_embed, json=data)
+    response.raise_for_status()
+    
+    return response.json()['data'], chunks
+
 def get_embeddings(texts, model=EMBEDDING_MODEL, dimension_size=768):
     """
-    Obtiene embeddings para una lista de textos usando la API de surus.
+    Función original mantenida para compatibilidad con textos ya cortos.
     """
     data = {
         "model": model,
         "input": texts,
         "dimensions": dimension_size
     }
-    headers["Content-Type"] = "application/json"
-    response = requests.post(API_URL, headers=headers, json=data)
-    response.raise_for_status()  # Lanza un error si la petición falla
+    headers_embed = headers.copy()
+    headers_embed["Content-Type"] = "application/json"
+    response = requests.post(API_URL, headers=headers_embed, json=data)
+    response.raise_for_status()
     
     return response.json()['data']
 
-# Prueba rápida de la función
+# Prueba de la función
 try:
-    sample_embedding = get_embeddings(["Este es un texto de prueba."])
-    EMBEDDING_DIM = len(sample_embedding[0]['embedding'])
+    sample_text = "Este es un texto de prueba para embeddings con chunking automático."
+    embeddings, chunks = get_embeddings_for_chunks(sample_text, dimension_size=768)
+    print(f"Generados {len(embeddings)} embeddings para {len(chunks)} chunks")
+    EMBEDDING_DIM = len(embeddings[0]['embedding'])
     print(f"Dimensión de los embeddings: {EMBEDDING_DIM}")
 except Exception as e:
-    print(f"Error al obtener embedding de prueba: {e}")
+    print(f"Error al obtener embeddings con chunking: {e}")
     print("Asegúrate de que tu GS_API_KEY es correcta y está en el archivo .env")
 ```
 
@@ -118,7 +212,9 @@ Es importante pasar este parametro EMBEDDING_DIM a la hora de crear la colecció
 
 ## Testeando Diferentes Dimensiones de Embeddings
 
-Antes de crear la colección entera (y tomarnos el tiempo de indexar mas de 400 mil documentos!), vamos a comparar el desempeño y almacenamiento usando tres dimensiones distintas: **768**, **512** y **256**. Para esto, crearemos tres colecciones en Qdrant, cada una con una dimensión diferente.
+Antes de crear la colección entera (y tomarnos el tiempo de indexar mas de 400 mil documentos!), vamos a comparar el desempeño y almacenamiento usando tres dimensiones distintas: **768**, **512** y **256**.
+
+Para esto, primero creamos tres colecciones en Qdrant, cada una con una dimensión diferente.
 
 Luego, indexaremos los mismos 1000 documentos aleatorios del dataset y observaremos el impacto en velocidad, almacenamiento y calidad de búsqueda según la dimensión elegida.
 
@@ -168,7 +264,6 @@ for dim, col_name in zip(DIMENSIONS_TO_TEST, test_collection_names):
         )
     print(f"Indexación completada para {col_name}. Total: {len(test_texts)} documentos.")
 
-# Ahora puedes comparar el uso de almacenamiento y la calidad de búsqueda en cada colección.
 ```
 
 Con esto, tendrás tres colecciones de prueba para comparar cómo afecta la dimensionalidad al almacenamiento y la búsqueda.
@@ -248,48 +343,68 @@ except Exception as e:
 
 ## Indexando los Documentos
 Los pasos que seguimos son:
-1. Agarramos nuestro dataset, iteramos creando chunks
-2. Generamos embeddings para los textos con la API de surus y
+1. Agarramos nuestro dataset, iteramos creando chunks de máximo 512 tokens
+2. Generamos embeddings para cada chunk con la API de surus y
 3. Los agregamos a la colección de Qdrant.
 
 ```python
 from qdrant_client.models import PointStruct
 
-BATCH_SIZE = 4 # TODO: encontrar el sweet spot entre velocidad y capacidad del endpoint
+BATCH_SIZE = 2  # Reducido porque ahora procesamos chunks
+MAX_TOKENS_PER_CHUNK = 512
 
 total_docs = len(dataset)
 print(f"Indexando {total_docs} documentos en lotes de {BATCH_SIZE}...")
 
-for i in tqdm(range(0, total_docs, BATCH_SIZE)):
-    batch_texts = dataset[i:i+BATCH_SIZE]['full_text']
-    
-    # Filtrar textos vacíos que pueden causar errores
-    valid_texts = [text for text in batch_texts if text and text.strip()]
-    if not valid_texts:
-        continue
+point_id = 0  # Contador global para IDs únicos
 
-    # Generar embeddings
-    embeddings = get_embeddings(valid_texts)
+for i in tqdm(range(0, total_docs, BATCH_SIZE)):
+    batch_data = dataset[i:i+BATCH_SIZE]
     
-    # Crear puntos para Qdrant
-    # Necesitamos mapear los índices de valid_texts de vuelta a los originales del batch
-    original_indices = [idx for idx, text in enumerate(batch_texts) if text and text.strip()]
+    # Procesar cada documento del batch
+    points_to_insert = []
     
-    points = [
-        PointStruct(
-            id=i + original_indices[j], # ID único para cada punto
-            vector=embedding['embedding'],
-            payload={"text": text},
+    for doc_idx, doc in enumerate(batch_data):
+        text = doc['full_text']
+        
+        # Filtrar textos vacíos
+        if not text or not text.strip():
+            continue
+        
+        try:
+            # Generar embeddings con chunking automático
+            embeddings, chunks = get_embeddings_for_chunks(
+                text, 
+                dimension_size=EMBEDDING_DIM, 
+                max_tokens=MAX_TOKENS_PER_CHUNK
+            )
+            
+            # Crear un punto por cada chunk
+            for chunk_idx, (embedding, chunk_text) in enumerate(zip(embeddings, chunks)):
+                point = PointStruct(
+                    id=point_id,
+                    vector=embedding['embedding'],
+                    payload={
+                        "text": chunk_text,
+                        "document_id": i + doc_idx,  # ID del documento original
+                        "chunk_id": chunk_idx,       # ID del chunk dentro del documento
+                        "total_chunks": len(chunks)  # Total de chunks del documento
+                    },
+                )
+                points_to_insert.append(point)
+                point_id += 1
+                
+        except Exception as e:
+            print(f"Error procesando documento {i + doc_idx}: {e}")
+            continue
+    
+    # Subir todos los puntos del batch a Qdrant
+    if points_to_insert:
+        client.upsert(
+            collection_name=collection_name,
+            points=points_to_insert,
+            wait=False
         )
-        for j, (embedding, text) in enumerate(zip(embeddings, valid_texts))
-    ]
-    
-    # Subir puntos a Qdrant
-    client.upsert(
-        collection_name=collection_name,
-        points=points,
-        wait=False # Hacemos el upsert asíncrono para mayor velocidad
-    )
 
 print("\nIndexación completada.")
 collection_info = client.get_collection(collection_name=collection_name)
@@ -298,9 +413,9 @@ print(f"Total de vectores en la colección: {collection_info.vectors_count}")
 
 Tené paciencia! Este proceso puede llevar mucho tiempo.
 
-Una vez que termina, ya está! Tenemos nuestros documentos indexados en Qdrant, listos para realizar búsquedas semánticas.
+Una vez que termina, ya está! Tenemos una base de datos masiva con todos nuestros documentos indexados en Qdrant, listos para realizar búsquedas semánticas.
 
-Es acá donde observaremos cuánto almacenamiento estamos usando y cómo podemos optimizarlo. Esto escala linealmente, así que reduciendo las dimensiones, por ejemplo, a la mitad, podemos reducir el costo de almacenamiento a la mitad.
+Es acá donde observaremos cuánto almacenamiento estamos usando y cómo podemos optimizarlo. Esto escala linealmente con las dimensiones, así que si las reducimos por ejemplo, a la mitad, podemos reducir el costo de almacenamiento a la mitad.
 
 ## Buscando en la Base de Datos Legal
 Con nuestros documentos indexados, podemos realizar búsquedas semánticas.
@@ -337,13 +452,15 @@ for i, hit in enumerate(resultados):
 
 ## ¿Cuánto cuesta almacenar estos vectores?
 
+Cuando querramos mover nuestro proyecto a producción, es importante tener en cuenta el costo de almacenamiento de los embeddings.
+Qdrant ofrece una calculadora de precios en su [sitio web](https://cloud.qdrant.io/calculator) que nos permite estimar el costo mensual según el tamaño de los vectores y la cantidad de datos.
 
 ## Conclusión
-¡Felicidades! Has construido un motor de búsqueda semántica para documentos legales argentinos. Hemos visto cómo:
-1.  Configurar Qdrant con Docker para un entorno persistente y una API de embeddings como la de surus.
+Construiste un motor de búsqueda semántica para buscar a lo largo y ancho de cientos de miles de documentos legales argentinos. Hemos visto cómo:
+1.  Configurar Qdrant con Docker para un entorno persistente.
 2.  Cargar un dataset de textos legales.
 3.  Crear una colección en Qdrant optimizada para búsqueda de similitud.
-4.  Indexar miles de documentos en lotes, generando embeddings sobre la marcha.
+4.  Indexar miles de documentos en lotes, generando embeddings sobre la marcha con la API de surus.
 5.  Realizar búsquedas semánticas para encontrar documentos relevantes a una pregunta en lenguaje natural.
 
 Este es un pilar fundamental para construir aplicaciones de IA Legal más complejas.
