@@ -241,21 +241,46 @@ Ahora vamos a comparar las colecciones creadas en tres aspectos clave:
 
 ```python
 import time
+import subprocess
+import os
 
 def get_collection_disk_size(collection_name):
-    # Qdrant expone el tamaño en disco por colección en la API REST
-    # Usamos el endpoint /collections/{collection_name}
-    resp = requests.get(f"http://localhost:6333/collections/{collection_name}")
-    resp.raise_for_status()
-    info = resp.json()
-    size_bytes = info['result']['status']['disk_data_size']
-    size_mb = size_bytes / (1024 * 1024)
-    return size_mb
+    """
+    Obtiene el tamaño en disco de una colección usando du (disk usage).
+    Busca en el directorio qdrant_storage donde se almacenan los datos.
+    """
+    storage_path = os.path.join(os.getcwd(), "qdrant_storage", "collections", collection_name)
+    
+    try:
+        # Usar du para obtener el tamaño en bytes
+        result = subprocess.run(
+            ["du", "-sb", storage_path], 
+            capture_output=True, 
+            text=True, 
+            check=True
+        )
+        
+        # du -sb devuelve "tamaño_en_bytes    directorio"
+        size_bytes = int(result.stdout.split()[0])
+        size_mb = size_bytes / (1024 * 1024)
+        return size_mb
+        
+    except (subprocess.CalledProcessError, FileNotFoundError, IndexError):
+        # Fallback: usar os.path.getsize recursivamente
+        try:
+            total_size = 0
+            for dirpath, dirnames, filenames in os.walk(storage_path):
+                for filename in filenames:
+                    filepath = os.path.join(dirpath, filename)
+                    total_size += os.path.getsize(filepath)
+            return total_size / (1024 * 1024)
+        except OSError:
+            return 0
 
 def medir_busqueda_y_resultados(query, top_k=3):
     for col_name in test_collection_names:
         print(f"\nColección: {col_name}")
-        # Tamaño en disco
+        # Tamaño en disco usando sistema de archivos
         try:
             size_mb = get_collection_disk_size(col_name)
             print(f"Tamaño en disco: {size_mb:.2f} MB")
@@ -419,8 +444,8 @@ Construiste un motor de búsqueda semántica para buscar a lo largo y ancho de c
 
 Hemos visto cómo:
 1.  Configurar Qdrant con Docker para un entorno persistente.
-2.  Cargar un dataset de textos legales.
-3.  Crear una colección en Qdrant optimizada para búsqueda de similitud.
+2.  Crear una colección en Qdrant optimizada para búsqueda de similitud.
+3.  Comparar la performance de diferentes dimensiones de embeddings.
 4.  Indexar miles de documentos en lotes, generando embeddings sobre la marcha con la API de surus.
 5.  Realizar búsquedas semánticas para encontrar documentos relevantes a una pregunta en lenguaje natural.
 
@@ -430,40 +455,3 @@ Este es un pilar fundamental para construir aplicaciones de IA Legal más comple
 - **RAG (Retrieval-Augmented Generation):** Combina este sistema de búsqueda con un LLM (como los disponibles en surus.dev) para generar respuestas directas a las preguntas, en lugar de solo devolver documentos.
 - **Metadatos y Filtros:** Enriquece los `payloads` en Qdrant con metadatos (fechas, tipo de norma, etc.) para permitir búsquedas filtradas, combinando la búsqueda semántica con filtros exactos.
 Este es un pilar fundamental para construir aplicaciones de IA Legal más complejas.
-
-## Próximos Pasos
-- **RAG (Retrieval-Augmented Generation):** Combina este sistema de búsqueda con un LLM (como los disponibles en surus.dev) para generar respuestas directas a las preguntas, en lugar de solo devolver documentos.
-- **Metadatos y Filtros:** Enriquece los `payloads` en Qdrant con metadatos (fechas, tipo de norma, etc.) para permitir búsquedas filtradas, combinando la búsqueda semántica con filtros exactos.
-print(f"\n🔍 Resultados para la búsqueda: '{pregunta}'\n")
-for i, hit in enumerate(resultados):
-    print(f"--- Resultado {i+1} (Score: {hit.score:.4f}) ---")
-    # Mostramos los primeros 500 caracteres del texto
-    print(hit.payload['text'][:500] + "...")
-    print("\n")
-```
-
-## ¿Cuánto cuesta almacenar estos vectores?
-
-Cuando querramos mover nuestro proyecto a producción, es importante tener en cuenta el costo de almacenamiento de los embeddings.
-Qdrant ofrece una calculadora de precios en su [sitio web](https://cloud.qdrant.io/calculator) que nos permite estimar el costo mensual según el tamaño de los vectores y la cantidad de datos.
-
-## Conclusión
-Construiste un motor de búsqueda semántica para buscar a lo largo y ancho de cientos de miles de documentos legales argentinos, felicitaciones!
-
-Hemos visto cómo:
-1.  Configurar Qdrant con Docker para un entorno persistente.
-2.  Cargar un dataset de textos legales.
-3.  Crear una colección en Qdrant optimizada para búsqueda de similitud.
-4.  Indexar miles de documentos en lotes, generando embeddings sobre la marcha con la API de surus.
-5.  Realizar búsquedas semánticas para encontrar documentos relevantes a una pregunta en lenguaje natural.
-
-Este es un pilar fundamental para construir aplicaciones de IA Legal más complejas.
-
-## Próximos Pasos
-- **RAG (Retrieval-Augmented Generation):** Combina este sistema de búsqueda con un LLM (como los disponibles en surus.dev) para generar respuestas directas a las preguntas, en lugar de solo devolver documentos.
-- **Metadatos y Filtros:** Enriquece los `payloads` en Qdrant con metadatos (fechas, tipo de norma, etc.) para permitir búsquedas filtradas, combinando la búsqueda semántica con filtros exactos.
-Este es un pilar fundamental para construir aplicaciones de IA Legal más complejas.
-
-## Próximos Pasos
-- **RAG (Retrieval-Augmented Generation):** Combina este sistema de búsqueda con un LLM (como los disponibles en surus.dev) para generar respuestas directas a las preguntas, en lugar de solo devolver documentos.
-- **Metadatos y Filtros:** Enriquece los `payloads` en Qdrant con metadatos (fechas, tipo de norma, etc.) para permitir búsquedas filtradas, combinando la búsqueda semántica con filtros exactos.
